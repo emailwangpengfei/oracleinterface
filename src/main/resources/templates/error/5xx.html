@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error Page</title>
+    <link rel="stylesheet" th:href="@{css/bootstrap.min.css}"/>
+</head>
+<body>
+<h1 class="text-danger text-center">错误页面</h1>
+<h2 class="text-danger text-center" th:if="${not #strings.isEmpty(errorInfo.errorMsg)}">错误信息：[[${errorInfo.errorMsg}]]</h2>
+<h2 class="text-danger text-center">状态码：[[${status}]]</h2>
+<h2 class="text-danger text-center">时间：[[${timestamp}]]</h2>
+<h2 class="text-danger text-center">作者：[[${author}]]</h2>
+<h4 class="text-danger text-center"><a href="/">返回首页</a></h4>
+</body>
+</html>

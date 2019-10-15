@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" th:href="@{css/bootstrap.min.css}"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script type="text/javascript" th:src="@{js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{js/jquery.min.js}"></script>
+    <script>
+        $(function(){
+
+            /**
+             * url检查
+             * @param url
+             * @returns {boolean}
+             */
+            function checkUrl(url) {
+                var strRegex = '^((https|http|ftp|rtsp|mms)?://)?'
+                    +'(([0-9a-z_!~*().&=+$%-]+: )?[0-9a-z_!~*().&=+$%-]+@)?' //ftp的user@
+                    +'(([0-9]{1,3}.){3}[0-9]{1,3}|'// IP形式的URL- 199.194.52.184
+                    +'([0-9a-z_!~*()-]+.)*'// 域名- www.
+                    +'[a-z]{2,6})'//域名的扩展名
+                    +'(:[0-9]{1,4})?'// 端口- :80
+                    +'((/?)|(/[0-9a-z_!~*().;?:@&=+$,%#-]+)+/?)$';
+                return new RegExp(strRegex).test(url);
+            }
+
+            /**
+             * 向后台提交数据前参数检测是否为不为空或合法，满足则允许提交
+             */
+            $(":submit").click(function(){
+                var loginNameVal = $("#loginName").val();
+                var passwordVal = $("#password").val();
+                var isLoginNameNull = $.trim(loginNameVal) == "";
+                var isPasswordNull = $.trim(passwordVal) == "";
+                if(isUrlOk && !isLoginNameNull && !isPasswordNull){
+                    return true;
+                }else{
+                    alert("请输入完整且正确的信息");
+                    return false;
+                }
+            });
+
+            /**
+             * interfaceUrl合法的标志
+             * @type {boolean}
+             */
+            var isUrlOk = false;
+
+            /**
+             * 接口类型输入框失去焦点后检测数据是否是合法的URL、及ajax检测数据是否重复
+             * 若为空、不合法、已重复则会给出提示，并置标记变量 isUrlOk 为 false。
+             */
+            $("#interfaceUrl").blur(function () {
+                var val = $.trim($(this).val());
+                if (val.length == 0){
+                    $("#tip").text("该输入项不能为空").prop("hidden",false);
+                    isUrlOk = false;
+                } else {
+                    if (!checkUrl(val)){
+                        $("#tip").text("服务地址非法").prop("hidden",false);
+                        isUrlOk = false;
+                    } else{
+                        var json = {"interfaceUrl": val, "date": new Date()};
+                        $.ajax({
+                            type: "GET",
+                            url: "/isInterfaceUrlExist",
+                            data: json,
+                            success: function(data){
+                                if(data == 1){
+                                    $("#tip").prop("hidden",true);
+                                    isUrlOk = true;
+                                }else{
+                                    $("#tip").text("服务地址已存在").prop("hidden",false);
+                                    isUrlOk = false;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            /**
+             * 登录姓名输入框失去焦点后进行空值检测，为空则给出提示
+             */
+            $("#loginName").blur(function () {
+                var val = $.trim($(this).val());
+                if (val == $(this)[0].defaultValue){
+                    $("#tipForLoginName").text("该输入项不能为空").prop("hidden",false);
+                } else {
+                    $("#tipForLoginName").prop("hidden",true);
+                }
+            });
+
+            /**
+             * 密码输入框失去焦点后进行空值检测，为空则给出提示
+             */
+            $("#password").blur(function () {
+                var val = $(this).val();
+                if (val == $(this)[0].defaultValue){
+                    $("#tipForPassword").text("该输入项不能为空").prop("hidden",false);
+                } else {
+                    $("#tipForPassword").prop("hidden",true);
+                }
+            });
+        })
+    </script>
+</head>
+<body>
+<br />
+<div class="container">
+    <div class="container col-md-9">
+        <p class="lead bg-info">Oracle接口设置</p>
+    </div>
+    <div class="container">
+        <form action="/save" class="form-horizontal col-md-9" method="post">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">币种：</label>
+                <div class="col-sm-4">
+                    <select class="form-control" name="currencyId">
+                        <option th:value="${currency.currencyId}" th:text="${currency.currencyName}">人民币</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">接口类型：</label>
+                <div class="col-sm-4">
+                    <select id="sel_interfaceTypeId" class="form-control" name="interfaceTypeId">
+                        <option th:value="${interfaceType.cuxQueryId}" th:text="${interfaceType.cuxQueryName}">数据查询接口</option>
+                        <option th:value="${interfaceType.cuxCommonExpId}" th:text="${interfaceType.cuxCommonExpName}">通用导出接口</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">服务地址：</label>
+                <div class="col-sm-6">
+                    <input type="text" id="interfaceUrl" name="interfaceUrl" class="form-control" placeholder="请设置服务地址" autocomplete="off" />
+                </div>
+                <label id="tip" hidden  style="color: red; font-size: small" class="col-sm-2 control-label">服务地址非法</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">用户名：</label>
+                <div class="col-sm-4">
+                    <input type="text" id="loginName" name="loginName" class="form-control" placeholder="请设置用户名" autocomplete="off"/>
+                </div>
+                <label id="tipForLoginName" hidden  style="color: red; font-size: small" class="col-sm-2 control-label">服务地址非法</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">用户密码：</label>
+                <div class="col-sm-4">
+                    <input type="password" id="password" name="password" class="form-control" placeholder="请设置用户密码" autocomplete="off"/>
+                </div>
+                <label id="tipForPassword" hidden  style="color: red; font-size: small" class="col-sm-2 control-label">服务地址非法</label>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-9">
+                    <input type="submit" value="保存" class="btn btn-info queryBtn" />
+                    <a href="/main" class="btn btn-default">返回</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
