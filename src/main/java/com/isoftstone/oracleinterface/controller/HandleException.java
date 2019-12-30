@@ -22,7 +22,7 @@ import java.util.Map;
 public class HandleException {
 
     @ExceptionHandler({BaseMapperException.class, BusinessLogicException.class,
-            IllegalParameterException.class, SQLException.class,
+            SQLException.class,
             IOException.class, Exception.class})
     public String handleUnknownException(Exception e, HttpServletRequest request) {
         Map<String, Object> errorInfo = new HashMap<>();
@@ -30,5 +30,11 @@ public class HandleException {
         errorInfo.put("errorMsg", e.getMessage());
         request.setAttribute("errorInfo", errorInfo);
         return "forward:/error";
+    }
+
+    @ExceptionHandler({IllegalParameterException.class})
+    public String handleIllegalParameterException(IllegalParameterException e, HttpServletRequest request){
+        request.setAttribute("errorMsg", e.getMessage());
+        return e.getNextPage();
     }
 }

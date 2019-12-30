@@ -8,6 +8,13 @@
     <script type="text/javascript" th:src="@{js/bootstrap.min.js}"></script>
     <script type="text/javascript" th:src="@{js/jquery.min.js}"></script>
     <script>
+        window.setTimeout(function () {
+            var errorMsg = $("#errorMsg").val();
+            if (errorMsg != null && errorMsg != ""){
+                alert(errorMsg + "----in");
+            }
+        }, 200);
+
         $(function(){
             var currentPage = $("#current").text();
             var totalPages = $("#total").text();
@@ -225,6 +232,7 @@
                         <input hidden th:if="${not #strings.isEmpty(params)}" id="currencyId" name="currencyId" th:value="${params.currencyId}"/>
                         <input hidden th:if="${not #strings.isEmpty(params)}" id="interfaceTypeId" name="interfaceTypeId" th:value="${params.interfaceTypeId}"/>
                         <input hidden th:if="${not #strings.isEmpty(withCondition)}" id="withCondition" th:value="${withCondition}"/>
+                        <input hidden id="errorMsg" th:value="${errorMsg}">
                     </form>
                 </div>
             </div>

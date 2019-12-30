@@ -124,7 +124,7 @@ public class InterfaceSetController {
     public String saveInterfaceSetInfo(HttpServletRequest request, InterfaceSetInfo interfaceSetInfo)
             throws BaseMapperException, IllegalParameterException, BusinessLogicException {
         if (interfaceSetInfo == null){
-            throw new IllegalParameterException("保存信息为空");
+            throw new IllegalParameterException("保存信息为空", null);
         }
         System.out.println(interfaceSetInfo.toString());
         interfaceSetService.saveInterfaceSet(interfaceSetInfo);
@@ -142,7 +142,7 @@ public class InterfaceSetController {
     public String toUpdatePage(HttpServletRequest request, @PathVariable("id") Long id)
             throws BaseMapperException, IllegalParameterException {
         if (id == null){
-            throw new IllegalParameterException("删除指定的id为空");
+            throw new IllegalParameterException("删除指定的id为空", null);
         }
         PagerInfo data = interfaceSetService.getInterfaceSetInfo(id);
         request.setAttribute("currency", getCurrency());
@@ -162,7 +162,7 @@ public class InterfaceSetController {
     public String updateInterfaceSetInfo(HttpServletRequest request, InterfaceSetInfo interfaceSetInfo)
             throws BaseMapperException, IllegalParameterException, BusinessLogicException {
         if (interfaceSetInfo == null){
-            throw new IllegalParameterException("修改信息为空");
+            throw new IllegalParameterException("修改信息为空", null);
         }
         System.out.println(interfaceSetInfo.toString());
         interfaceSetService.updateInterfaceSet(interfaceSetInfo);
@@ -180,7 +180,7 @@ public class InterfaceSetController {
     public String deleteInterfaceSetInfo(HttpServletRequest request, @PathVariable("id") Long id)
             throws BaseMapperException, IllegalParameterException, BusinessLogicException {
         if (id == null){
-            throw new IllegalParameterException("删除指定的id为空");
+            throw new IllegalParameterException("删除指定的id为空", null);
         }
         interfaceSetService.deleteInterfaceSet(id);
         return "redirect:/main";
@@ -207,8 +207,10 @@ public class InterfaceSetController {
      * @throws IllegalParameterException
      */
     @GetMapping("/e")
-    public void toErrorPage() throws IllegalParameterException {
-        throw new IllegalParameterException("异常测试");
+    public void toErrorPage() throws IllegalParameterException, InterruptedException {
+        Thread.sleep(2000);
+        IllegalParameterException e = new IllegalParameterException("异常测试", "forward:/main");
+        throw e;
     }
 
     @GetMapping("/isInterfaceUrlExist")
